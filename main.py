@@ -2,7 +2,7 @@ import requests
 import sqlite3
 import asyncio
 import json
-from telegram import Bot # pip python-telegram-bot
+from telegram import Bot  # pip python-telegram-bot
 
 
 # Ustawienia bota Telegram (z pliku teleolx.cred)
