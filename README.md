@@ -5,9 +5,9 @@ The principle of operation is that every specified time, bot downloads json from
 
 For proper operation, it needs a file with the configuration of your previously created telegram bot and your own chat id. The file must be named "teleolx.cred" and placed in the directory from which `main.py` will be running. The content of the file should be json style:
 
->**{**
-   **"TOKEN": "your bot token here",** 
-   **"CHAT_ID": "your chat id here"**
+>**{**  
+**"TOKEN": "your bot token here",**   
+**"CHAT_ID": "your chat id here"**  
 **}**
 
 ### Complications:
