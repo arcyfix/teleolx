@@ -1,5 +1,5 @@
 # Welcome to Teleolx!
-Hi, I'm very proud that you found my piece of code in gitHub. You met here my bot for telegram messenger called **`teleolx`**. It has a wide range of uses cases from collectors hunting for rare items to scalpers trying to quickly sell cheaply priced equipment for a profit, or just for handyman looking for specific spare parts.
+Hi, I'm very proud that you found my piece of code in gitHub. You met here my bot for telegram messenger called **`teleolx`**. It has a wide range of uses cases from collectors hunting for rare items to scalpers trying to quickly buy rare things from market or just for handyman looking for specific spare parts.
 
 The principle of operation is that every specified time, bot downloads json from the olx portal set to a specific phrase - in this example we are looking for the phrase "xperia". He saves the data in the database and if the new ad is unique, it sends you a telegram notification.
 
