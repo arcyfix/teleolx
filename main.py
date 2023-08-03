@@ -103,7 +103,7 @@ async def check_olx():
 
     try:
         response = requests.get(url)
-        response.raise_for_status()  # Sprawdzenie, czy nie ma błędów HTTP w odpowiedzi
+        response.raise_for_status()  # Sprawdzenie,czy nie ma błędów HTTP w odpowiedzi
 
         data = response.json()
 
