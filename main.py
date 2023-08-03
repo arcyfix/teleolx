@@ -1,9 +1,8 @@
-import requests
-import sqlite3
 import asyncio
 import json
+import sqlite3
+import requests
 from telegram import Bot  # pip python-telegram-bot
-
 
 # Ustawienia bota Telegram (z pliku teleolx.cred)
 TOKEN = ""
@@ -36,6 +35,24 @@ def create_table():
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS errors (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            error_message TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+
+def log_error(error_message):
+    conn = sqlite3.connect(DATABASE_FILE)
+    c = conn.cursor()
+    c.execute("""
+        INSERT INTO errors (error_message)
+        VALUES (?)
+    """, (error_message,))
     conn.commit()
     conn.close()
 
@@ -65,9 +82,18 @@ def save_offer(title, url, price):
 
 
 async def send_notification(title, link, price):
-    message = f"Znaleziono nowe ogłoszenie:\n\n{title}\nCena: {price}\n\nLink: {link}"
-    bot = Bot(token=TOKEN)
-    await bot.send_message(chat_id=CHAT_ID, text=message)
+    try:
+        bot = Bot(token=TOKEN)
+        if title == "Błąd!":
+            # Komunikat o błędzie
+            message = f"{title}\n\n{price}"
+        else:
+            # Komunikat o nowym ogłoszeniu
+            message = f"Znaleziono nowe ogłoszenie:\n\n{title}\nCena: {price}\n\nLink: {link}"
+        await bot.send_message(chat_id=CHAT_ID, text=message)
+    except Exception as e:
+        message = f"Error sending notification: {str(e)}"
+        log_error(message)
 
 
 async def check_olx():
@@ -75,28 +101,36 @@ async def check_olx():
            "&sort_by=created_at%3Adesc&last_seen_id=837650251&filter_refiners=spell_checker"
            "&sl=1851b370720x52bd11c2")
 
-    response = requests.get(url)
-    data = response.json()
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Sprawdzenie, czy nie ma błędów HTTP w odpowiedzi
 
-    if "data" in data:
-        for item in data["data"]:
-            title = item["title"]
-            link = item["url"]
-            price = item['params'][0]['value']['label']
+        data = response.json()
 
-            # Zapisywanie tylko unikalnych ofert do bazy danych
-            if save_offer(title, link, price):
-                # Wysyłanie powiadomienia do Telegram tylko dla unikalnych ofert
-                await send_notification(title, link, price)
+        if "data" in data:
+            for item in data["data"]:
+                title = item["title"]
+                link = item["url"]
+                price = item['params'][0]['value']['label']
+
+                # Zapisywanie tylko unikalnych ofert do bazy danych
+                if save_offer(title, link, price):
+                    # Wysyłanie powiadomienia do Telegram tylko dla unikalnych ofert
+                    await send_notification(title, link, price)
+    except requests.exceptions.RequestException as e:
+        error_message = f"Error fetching data from OLX: {str(e)}"
+        log_error(error_message)
+        # Dodaj wysyłanie powiadomienia na Telegram o wystąpieniu błędu
+        await send_notification("Błąd!", "", error_message)
 
 
 async def main():
-    create_table()
     while True:
         await check_olx()
         await asyncio.sleep(FREQUENCY * 60)
 
 
 if __name__ == "__main__":
+    create_table()
     read_credentials()  # Odczytaj dane uwierzytelniające z pliku
     asyncio.run(main())
