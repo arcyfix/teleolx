@@ -11,4 +11,4 @@ For proper operation, it needs a file with the configuration of your previously 
 **}**
 
 ### Complications:
-If you have a problem with any aspect of using the bot, e.g. you can't prepare a json request for a specific phrase, you don't have a server where you could run it, or you encounter any other problems feel free to contact me via telegram at https://cyberwron.t.me/
+If you have a problem with any aspect of using the bot, e.g. you can't prepare a json request for a specific phrase, you don't have a server where you could run it, or you encounter any other problems feel free to contact me via telegram at https://arcyfix.t.me/
